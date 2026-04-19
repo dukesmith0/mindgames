@@ -1,0 +1,24 @@
+{
+  "name": "mindgames",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dukesmith0/mindgames.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/dukesmith0/mindgames/issues"
+  },
+  "homepage": "https://github.com/dukesmith0/mindgames#readme",
+  "devDependencies": {
+    "vitest": "^4.1.4"
+  }
+}

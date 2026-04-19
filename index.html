@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mindgames</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <span class="logo">mindgames</span>
+    <div class="header-controls">
+      <span id="user-display"></span>
+      <button id="theme-toggle" title="Toggle theme">☾</button>
+      <button id="logout-btn" hidden>logout</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Login -->
+    <section id="screen-login" class="screen active">
+      <h1>mindgames</h1>
+      <form id="login-form" autocomplete="off">
+        <label for="login-user">Username</label>
+        <input id="login-user" type="text" required autofocus>
+        <label for="login-pass">Password</label>
+        <input id="login-pass" type="password" required>
+        <button type="submit" id="login-btn">Login</button>
+        <span id="login-error" class="error"></span>
+      </form>
+    </section>
+
+    <!-- Dashboard -->
+    <section id="screen-dashboard" class="screen">
+      <div class="dashboard-header">
+        <div class="tabs">
+          <span class="tab tab-active" data-tab="dashboard">Dashboard</span>
+          <span class="tab tab-inactive" data-tab="graphs">Graphs</span>
+        </div>
+        <button id="btn-start-game">Start Today's Game</button>
+      </div>
+      <div id="user-columns" class="user-columns"></div>
+      <div id="score-table-container"></div>
+    </section>
+
+    <!-- Graphs -->
+    <section id="screen-graphs" class="screen">
+      <div class="dashboard-header">
+        <div class="tabs">
+          <span class="tab tab-inactive" data-tab="dashboard">Dashboard</span>
+          <span class="tab tab-active" data-tab="graphs">Graphs</span>
+        </div>
+        <button id="btn-start-game-2">Start Today's Game</button>
+      </div>
+      <div id="graphs-container" class="graphs-container"></div>
+    </section>
+
+    <!-- Game Selection -->
+    <section id="screen-select" class="screen">
+      <h2>Select Game</h2>
+      <div class="game-buttons">
+        <button id="btn-math">Speed Math</button>
+        <button id="btn-digit">Digit Span</button>
+        <button id="btn-reaction">Reaction Time</button>
+        <button id="btn-minesweeper">Minesweeper</button>
+        <button id="btn-word">Word Recall</button>
+        <!-- Sudoku hidden for now; code retained in js/sudoku.js -->
+        <button id="btn-sudoku" hidden>Sudoku</button>
+      </div>
+      <button id="btn-back-dashboard" class="link-btn">← Back to Dashboard</button>
+    </section>
+
+    <!-- Speed Math -->
+    <section id="screen-math" class="screen">
+      <div class="game-header">
+        <button class="btn-quit link-btn">← Quit</button>
+        <span id="math-timer" class="timer">60.0</span>
+        <span id="math-score">Score: 0</span>
+      </div>
+      <div class="game-area">
+        <div id="math-problem" class="problem-display"></div>
+        <input id="math-answer" type="number" autocomplete="off">
+      </div>
+      <div id="math-result" class="result-overlay">
+        <h2>Your Score</h2>
+        <div class="result-score"></div>
+        <div class="result-actions">
+          <button class="btn-retry">Retry</button>
+          <button class="btn-submit">Submit Score</button>
+        </div>
+        <div class="result-status"></div>
+      </div>
+    </section>
+
+    <!-- Sudoku -->
+    <section id="screen-sudoku" class="screen">
+      <div class="game-header">
+        <button class="btn-quit link-btn">← Quit</button>
+        <span id="sudoku-timer" class="timer">00:00.00</span>
+      </div>
+      <div class="game-area sudoku-area">
+        <table id="sudoku-grid" class="sudoku-grid"></table>
+      </div>
+      <div id="sudoku-result" class="result-overlay">
+        <h2>Your Score</h2>
+        <div class="result-score"></div>
+        <div class="result-actions">
+          <button class="btn-retry">Retry</button>
+          <button class="btn-submit">Submit Score</button>
+        </div>
+        <div class="result-status"></div>
+      </div>
+    </section>
+
+    <!-- Reaction Time -->
+    <section id="screen-reaction" class="screen" style="position:relative">
+      <button class="btn-quit link-btn" style="position:absolute;top:8px;left:16px;z-index:10">← Quit</button>
+      <div id="reaction-area" class="reaction-area reaction-idle">
+        <div id="reaction-trial" class="reaction-trial"></div>
+        <div id="reaction-message" class="reaction-message">Press Start</div>
+        <div id="reaction-results" class="reaction-results"></div>
+      </div>
+      <div id="reaction-result" class="result-overlay">
+        <h2>Your Score</h2>
+        <div class="result-score"></div>
+        <div class="result-actions">
+          <button class="btn-retry">Retry</button>
+          <button class="btn-submit">Submit Score</button>
+        </div>
+        <div class="result-status"></div>
+      </div>
+    </section>
+
+    <!-- Digit Span -->
+    <section id="screen-digit" class="screen">
+      <div class="game-header">
+        <button class="btn-quit link-btn">← Quit</button>
+        <span id="digit-round" class="timer"></span>
+      </div>
+      <div class="game-area digit-area">
+        <div id="digit-message" class="digit-message"></div>
+        <div id="digit-display" class="digit-display"></div>
+        <input id="digit-input" type="text" inputmode="numeric" autocomplete="off" hidden>
+      </div>
+      <div id="digit-result" class="result-overlay">
+        <h2>Your Score</h2>
+        <div class="result-score"></div>
+        <div class="result-actions">
+          <button class="btn-retry">Retry</button>
+          <button class="btn-submit">Submit Score</button>
+        </div>
+        <div class="result-status"></div>
+      </div>
+    </section>
+
+    <!-- Minesweeper -->
+    <section id="screen-minesweeper" class="screen">
+      <div class="game-header">
+        <button class="btn-quit link-btn">← Quit</button>
+        <span id="minesweeper-timer" class="timer">00:00.00</span>
+        <span id="minesweeper-flags">Mines: 15  Flags: 0</span>
+      </div>
+      <div class="game-area minesweeper-area">
+        <table id="minesweeper-grid" class="minesweeper-grid"></table>
+        <p class="minesweeper-hint">Click to reveal, right-click to flag.</p>
+        <p id="minesweeper-status" class="minesweeper-status"></p>
+      </div>
+      <div id="minesweeper-result" class="result-overlay">
+        <h2>Your Score</h2>
+        <div class="result-score"></div>
+        <div class="result-actions">
+          <button class="btn-retry">Retry</button>
+          <button class="btn-submit">Submit Score</button>
+        </div>
+        <div class="result-status"></div>
+      </div>
+    </section>
+
+    <!-- Word Recall -->
+    <section id="screen-word" class="screen">
+      <div class="game-header">
+        <button class="btn-quit link-btn">← Quit</button>
+        <span id="word-countdown" class="timer"></span>
+      </div>
+      <div class="game-area word-area">
+        <div id="word-phase-show">
+          <p class="word-instruction">Memorize these 10 words:</p>
+          <div id="word-list" class="word-list"></div>
+        </div>
+        <div id="word-phase-recall" hidden>
+          <p class="word-instruction">Type the words you remember (space or newline separated):</p>
+          <textarea id="word-input" rows="5" autocomplete="off"></textarea>
+          <button id="word-submit" type="button">Submit (Ctrl+Enter)</button>
+        </div>
+      </div>
+      <div id="word-result" class="result-overlay">
+        <h2>Your Score</h2>
+        <div class="result-score"></div>
+        <div class="result-actions">
+          <button class="btn-retry">Retry</button>
+          <button class="btn-submit">Submit Score</button>
+        </div>
+        <div class="result-status"></div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

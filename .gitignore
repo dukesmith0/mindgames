@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Project tooling (local-only)
+.vibe/
+.agents/
+.claude/
+.mcp.json
+skills-lock.json
+debug/
+
+# OS / editor artifacts
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Environment
+.env
+.env.*
+
+# Logs
+*.log
+npm-debug.log*
