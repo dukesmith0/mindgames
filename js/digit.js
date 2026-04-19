@@ -1,8 +1,8 @@
 // Digit Span — short-term memory game
+// No overall time cap — game ends only on a wrong answer or reaching MAX_LENGTH.
 
 const MAX_LENGTH = 15;
 const START_LENGTH = 3;
-const TOTAL_TIME_MS = 60000;
 
 /**
  * Generates a random digit sequence.
@@ -43,7 +43,6 @@ export function getDisplayTime(length) {
 // --- DOM controller ---
 
 let displayTimeout = null;
-let totalTimeout = null;
 let keyHandler = null;
 let currentInput = null;
 
@@ -51,10 +50,6 @@ function cleanup() {
   if (displayTimeout !== null) {
     clearTimeout(displayTimeout);
     displayTimeout = null;
-  }
-  if (totalTimeout !== null) {
-    clearTimeout(totalTimeout);
-    totalTimeout = null;
   }
   if (keyHandler !== null && currentInput !== null) {
     currentInput.removeEventListener('keydown', keyHandler);
@@ -164,12 +159,6 @@ export function initDigitGame(onComplete) {
     }
   };
   inputEl.addEventListener('keydown', keyHandler);
-
-  // Overall 60s timeout
-  totalTimeout = setTimeout(() => {
-    totalTimeout = null;
-    finish();
-  }, TOTAL_TIME_MS);
 
   // Start first round
   showSequence();
