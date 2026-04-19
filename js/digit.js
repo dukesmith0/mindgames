@@ -31,13 +31,13 @@ export function isMatch(expected, actual) {
 
 /**
  * Returns the display duration (ms) for a sequence of the given length.
- * 1500ms for length 3, +300ms per extra digit.
+ * 2000ms for length 3, +500ms per extra digit.
  * Pure function — no DOM dependency.
  * @param {number} length
  * @returns {number}
  */
 export function getDisplayTime(length) {
-  return 1500 + (length - 3) * 300;
+  return 2000 + (length - 3) * 500;
 }
 
 // --- DOM controller ---

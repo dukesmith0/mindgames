@@ -15,7 +15,18 @@ export const WORDLIST = [
   'island', 'zebra', 'arrow', 'butter', 'copper',
   'dragon', 'helmet', 'tiger', 'eagle', 'mouse',
   'castle', 'wizard', 'kitten', 'desert', 'valley',
-  'pillow', 'button', 'turtle', 'violet', 'meadow'
+  'pillow', 'button', 'turtle', 'violet', 'meadow',
+  'jungle', 'rabbit', 'wagon', 'banjo', 'canyon',
+  'diamond', 'engine', 'falcon', 'galaxy', 'harbor',
+  'iceberg', 'jigsaw', 'kimono', 'lizard', 'magnet',
+  'needle', 'orchid', 'parrot', 'quartz', 'riddle',
+  'saddle', 'toffee', 'umbrella', 'violin', 'walnut',
+  'yogurt', 'bubble', 'cookie', 'dimple', 'ember',
+  'fossil', 'gravel', 'hammer', 'igloo', 'kayak',
+  'lantern', 'monkey', 'napkin', 'oxygen', 'pebble',
+  'quilt', 'ribbon', 'sandal', 'teapot', 'unicorn',
+  'vortex', 'whisker', 'yellow', 'zipper', 'acorn',
+  'badger', 'clover', 'donkey', 'envelope', 'feather'
 ];
 
 /**
