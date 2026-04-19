@@ -1,8 +1,8 @@
 // Dashboard — stats, heatmaps, per-user score tables
 
 const USERS = ['JL', 'DS', 'DK'];
-// Sudoku hidden from UI; code retained. Active games (order: quick first, slow last):
-const GAMES = ['math', 'memory_digit', 'reaction', 'minesweeper', 'memory_word'];
+// Sudoku hidden from UI; code retained. Active games (order: memory/attention first):
+const GAMES = ['math', 'memory_digit', 'nback', 'stroop', 'reaction', 'minesweeper', 'memory_word'];
 
 const GAME_LABELS = {
   math: 'Speed Math',
@@ -11,6 +11,8 @@ const GAME_LABELS = {
   memory_digit: 'Digit Span',
   memory_word: 'Word Recall',
   minesweeper: 'Minesweeper',
+  nback: 'N-Back',
+  stroop: 'Stroop',
 };
 
 // true = higher score is better; false = lower score is better
@@ -21,6 +23,8 @@ const HIGHER_IS_BETTER = {
   memory_digit: true,
   memory_word: true,
   minesweeper: false,
+  nback: true,
+  stroop: true,
 };
 
 /** Returns the best (top) score from an array, respecting game direction. */
@@ -151,7 +155,7 @@ export function buildDailyRuns(scores, username) {
   for (const s of userScores) {
     const d = toLocalDate(s.played_at);
     if (!byDate.has(d)) {
-      byDate.set(d, { math: [], minesweeper: [], reaction: [], memory_digit: [], memory_word: [] });
+      byDate.set(d, { math: [], minesweeper: [], reaction: [], memory_digit: [], memory_word: [], nback: [], stroop: [] });
     }
     const bucket = byDate.get(d);
     if (bucket[s.game]) bucket[s.game].push(Number(s.score));
@@ -168,19 +172,24 @@ export function buildDailyRuns(scores, username) {
       bucket.reaction.length,
       bucket.memory_digit.length,
       bucket.memory_word.length,
+      bucket.nback.length,
+      bucket.stroop.length,
     );
 
+    const dayRuns = [];
     for (let i = 0; i < rowCount; i++) {
-      rows.push({
-        date,
-        dateLabel: i === 0 ? shortDate(date) : '',
+      dayRuns.push({
         math: i < bucket.math.length ? bucket.math[i] : null,
         minesweeper: i < bucket.minesweeper.length ? bucket.minesweeper[i] : null,
         reaction: i < bucket.reaction.length ? bucket.reaction[i] : null,
         memory_digit: i < bucket.memory_digit.length ? bucket.memory_digit[i] : null,
         memory_word: i < bucket.memory_word.length ? bucket.memory_word[i] : null,
+        nback: i < bucket.nback.length ? bucket.nback[i] : null,
+        stroop: i < bucket.stroop.length ? bucket.stroop[i] : null,
       });
     }
+
+    rows.push({ date, dateLabel: shortDate(date), runs: dayRuns });
   }
 
   return rows;
@@ -199,6 +208,29 @@ export function formatScore(game, score) {
   if (game === 'reaction') return `${Math.round(n)}ms`;
   if (game === 'memory_digit') return `${n} digits`;
   if (game === 'memory_word') return `${n}/10`;
+  if (game === 'nback') return `${Math.round(n)}%`;
+  if (game === 'stroop') return `${n}`;
+  return String(n);
+}
+
+/**
+ * Compact score format for dense table cells.
+ * Drops unit suffixes; keeps just the number. Minesweeper/sudoku keep seconds since time is structural.
+ */
+export function formatScoreCompact(game, score) {
+  if (score === null || score === undefined) return '';
+  const n = Number(score);
+  if (game === 'math') return `${n}`;
+  if (game === 'memory_digit') return `${n}`;
+  if (game === 'memory_word') return `${n}`;
+  if (game === 'nback') return `${Math.round(n)}`;
+  if (game === 'stroop') return `${n}`;
+  if (game === 'reaction') return `${Math.round(n)}`;
+  if (game === 'sudoku' || game === 'minesweeper') {
+    const mins = Math.floor(n / 60);
+    const secs = Math.round(n % 60);
+    return mins > 0 ? `${mins}:${String(secs).padStart(2, '0')}` : `${Math.round(n)}`;
+  }
   return String(n);
 }
 
@@ -273,7 +305,7 @@ function buildStatCard(scores, user, game) {
 
   const stats = computeStats(scores, user, game);
 
-  // Top score row — visually emphasised at the top of the card
+  // Top score row — always visible at the top of the card
   const topRow = document.createElement('div');
   topRow.className = 'stat-row stat-top';
   const topLabel = document.createElement('span');
@@ -287,6 +319,14 @@ function buildStatCard(scores, user, game) {
   topRow.appendChild(topLabel);
   topRow.appendChild(topVal);
   card.appendChild(topRow);
+
+  // Everything else collapsed inside <details>
+  const details = document.createElement('details');
+  details.className = 'stat-details';
+
+  const summary = document.createElement('summary');
+  summary.textContent = 'More';
+  details.appendChild(summary);
 
   const rows = [
     ['All-time Median', formatStatValue(game, stats.allTime.median)],
@@ -306,9 +346,10 @@ function buildStatCard(scores, user, game) {
     valEl.textContent = value;
     row.appendChild(labelEl);
     row.appendChild(valEl);
-    card.appendChild(row);
+    details.appendChild(row);
   }
 
+  card.appendChild(details);
   return card;
 }
 
@@ -333,6 +374,11 @@ function renderUserTables(scores) {
   const grid = document.createElement('div');
   grid.className = 'user-tables-grid';
 
+  // Column order matches dashboard GAMES order (minus N-Back/Stroop both fit)
+  const COL_GAMES = ['math', 'memory_digit', 'nback', 'stroop', 'reaction', 'minesweeper', 'memory_word'];
+  const COL_HEADERS = ['Math', 'Dig', 'NB', 'Str', 'Rxn', 'Mine', 'Wrd'];
+  const TOTAL_COLS = COL_GAMES.length;
+
   for (const user of USERS) {
     const card = document.createElement('div');
     card.className = 'user-table-card';
@@ -342,9 +388,9 @@ function renderUserTables(scores) {
     title.textContent = user;
     card.appendChild(title);
 
-    const rows = buildDailyRuns(scores, user);
+    const days = buildDailyRuns(scores, user); // newest-first, each with { date, dateLabel, runs }
 
-    if (rows.length === 0) {
+    if (days.length === 0) {
       const empty = document.createElement('p');
       empty.className = 'user-table-empty';
       empty.textContent = 'No plays yet.';
@@ -358,7 +404,7 @@ function renderUserTables(scores) {
 
     const thead = document.createElement('thead');
     const headerRow = document.createElement('tr');
-    for (const h of ['Date', 'Math', 'Dig', 'Rxn', 'Mine', 'Wrd']) {
+    for (const h of COL_HEADERS) {
       const th = document.createElement('th');
       th.textContent = h;
       headerRow.appendChild(th);
@@ -367,26 +413,26 @@ function renderUserTables(scores) {
     table.appendChild(thead);
 
     const tbody = document.createElement('tbody');
-    let prevDate = null;
-    for (const r of rows) {
-      const tr = document.createElement('tr');
-      if (r.dateLabel !== '' && prevDate !== null) {
-        tr.classList.add('day-divider');
+    for (const day of days) {
+      // Date row: spans all columns
+      const dateTr = document.createElement('tr');
+      dateTr.className = 'date-row';
+      const dateTd = document.createElement('td');
+      dateTd.colSpan = TOTAL_COLS;
+      dateTd.textContent = day.dateLabel;
+      dateTr.appendChild(dateTd);
+      tbody.appendChild(dateTr);
+
+      // Run rows
+      for (const run of day.runs) {
+        const tr = document.createElement('tr');
+        for (const g of COL_GAMES) {
+          const cell = document.createElement('td');
+          cell.textContent = formatScoreCompact(g, run[g]);
+          tr.appendChild(cell);
+        }
+        tbody.appendChild(tr);
       }
-
-      const dateCell = document.createElement('td');
-      dateCell.textContent = r.dateLabel;
-      dateCell.className = 'date-cell';
-      tr.appendChild(dateCell);
-
-      for (const g of ['math', 'memory_digit', 'reaction', 'minesweeper', 'memory_word']) {
-        const cell = document.createElement('td');
-        cell.textContent = formatScore(g, r[g]);
-        tr.appendChild(cell);
-      }
-
-      tbody.appendChild(tr);
-      prevDate = r.date;
     }
     table.appendChild(tbody);
     card.appendChild(table);

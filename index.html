@@ -64,8 +64,10 @@
     <section id="screen-select" class="screen">
       <h2>Select Game</h2>
       <div class="game-buttons">
-        <button id="btn-math">Speed Math</button>
-        <button id="btn-digit">Digit Span</button>
+        <button id="btn-math" class="game-btn-starred"><span class="game-star" title="Core cognitive metric">★</span> Speed Math</button>
+        <button id="btn-digit" class="game-btn-starred"><span class="game-star" title="Core cognitive metric">★</span> Digit Span</button>
+        <button id="btn-nback" class="game-btn-starred"><span class="game-star" title="Core cognitive metric">★</span> N-Back</button>
+        <button id="btn-stroop" class="game-btn-starred"><span class="game-star" title="Core cognitive metric">★</span> Stroop</button>
         <button id="btn-reaction">Reaction Time</button>
         <button id="btn-minesweeper">Minesweeper</button>
         <button id="btn-word">Word Recall</button>
@@ -171,6 +173,56 @@
         <p id="minesweeper-status" class="minesweeper-status"></p>
       </div>
       <div id="minesweeper-result" class="result-overlay">
+        <h2>Your Score</h2>
+        <div class="result-score"></div>
+        <div class="result-actions">
+          <button class="btn-retry">Retry</button>
+          <button class="btn-submit">Submit Score</button>
+        </div>
+        <div class="result-status"></div>
+      </div>
+    </section>
+
+    <!-- N-Back -->
+    <section id="screen-nback" class="screen">
+      <div class="game-header">
+        <button class="btn-quit link-btn">← Quit</button>
+        <span id="nback-message" class="timer"></span>
+      </div>
+      <div class="game-area nback-area" id="nback-area">
+        <div id="nback-display" class="nback-display"></div>
+        <div id="nback-progress" class="nback-progress"></div>
+        <p class="nback-hint">Press SPACE (or tap) when the letter matches 2 back.</p>
+      </div>
+      <div id="nback-result" class="result-overlay">
+        <h2>Your Score</h2>
+        <div class="result-score"></div>
+        <div class="result-actions">
+          <button class="btn-retry">Retry</button>
+          <button class="btn-submit">Submit Score</button>
+        </div>
+        <div class="result-status"></div>
+      </div>
+    </section>
+
+    <!-- Stroop -->
+    <section id="screen-stroop" class="screen">
+      <div class="game-header">
+        <button class="btn-quit link-btn">← Quit</button>
+        <span id="stroop-timer" class="timer">45.0</span>
+        <span id="stroop-score">Score: 0</span>
+      </div>
+      <div class="game-area stroop-area">
+        <div id="stroop-word" class="stroop-word"></div>
+        <div id="stroop-buttons" class="stroop-buttons">
+          <button class="stroop-btn" data-color="red" style="background:#e53935">Red (1)</button>
+          <button class="stroop-btn" data-color="blue" style="background:#1e88e5">Blue (2)</button>
+          <button class="stroop-btn" data-color="green" style="background:#43a047">Green (3)</button>
+          <button class="stroop-btn" data-color="yellow" style="background:#fdd835;color:#222">Yellow (4)</button>
+        </div>
+        <p class="stroop-hint">Click the INK color, not the word.</p>
+      </div>
+      <div id="stroop-result" class="result-overlay">
         <h2>Your Score</h2>
         <div class="result-score"></div>
         <div class="result-actions">

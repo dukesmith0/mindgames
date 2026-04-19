@@ -5,6 +5,8 @@ import { initReactionGame, cleanupReactionGame } from './reaction.js';
 import { initDigitGame, cleanupDigitGame } from './digit.js';
 import { initWordGame, cleanupWordGame } from './word.js';
 import { initMinesweeperGame, cleanupMinesweeperGame } from './minesweeper.js';
+import { initNBackGame, cleanupNBackGame } from './nback.js';
+import { initStroopGame, cleanupStroopGame } from './stroop.js';
 import { renderDashboard } from './dashboard.js';
 import { renderGraphs, setGraphsMode } from './graphs.js';
 
@@ -27,6 +29,8 @@ function cleanupAllGames() {
   cleanupDigitGame();
   cleanupWordGame();
   cleanupMinesweeperGame();
+  cleanupNBackGame();
+  cleanupStroopGame();
   document.querySelectorAll('.result-overlay').forEach(o => o.classList.remove('active'));
 }
 
@@ -200,6 +204,12 @@ function startGame(game) {
       (score) => showResult('screen-minesweeper', 'minesweeper', score, (s) => `${s.toFixed(2)} seconds`),
       () => showLossResult('screen-minesweeper', 'minesweeper', 'You hit a mine!'),
     );
+  } else if (game === 'nback') {
+    showScreen('screen-nback');
+    initNBackGame((score) => showResult('screen-nback', 'nback', score, (s) => `${Math.round(s)}% accuracy`));
+  } else if (game === 'stroop') {
+    showScreen('screen-stroop');
+    initStroopGame((score) => showResult('screen-stroop', 'stroop', score, (s) => `${s} correct`));
   }
 }
 
@@ -293,6 +303,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-digit').addEventListener('click', () => startGame('memory_digit'));
   document.getElementById('btn-word').addEventListener('click', () => startGame('memory_word'));
   document.getElementById('btn-minesweeper').addEventListener('click', () => startGame('minesweeper'));
+  document.getElementById('btn-nback').addEventListener('click', () => startGame('nback'));
+  document.getElementById('btn-stroop').addEventListener('click', () => startGame('stroop'));
   document.getElementById('btn-back-dashboard').addEventListener('click', () => {
     showScreen('screen-dashboard');
   });
@@ -301,6 +313,17 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.btn-quit').forEach(btn => {
     btn.addEventListener('click', quitGame);
   });
+
+  // Logo click — return to dashboard (only if logged in)
+  const logo = document.querySelector('.logo');
+  if (logo) {
+    logo.addEventListener('click', () => {
+      if (!getUser()) return;
+      cleanupAllGames();
+      showScreen('screen-dashboard');
+      loadDashboard();
+    });
+  }
 
   // Graphs mode toggle (All plays / Daily average)
   document.querySelectorAll('.graphs-mode-btn').forEach(btn => {

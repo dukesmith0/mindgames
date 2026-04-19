@@ -4,6 +4,8 @@ const USERS = ['JL', 'DS', 'DK'];
 const GAMES = [
   { key: 'math', label: 'Speed Math', higherIsBetter: true, unit: '' },
   { key: 'memory_digit', label: 'Digit Span', higherIsBetter: true, unit: '' },
+  { key: 'nback', label: 'N-Back', higherIsBetter: true, unit: '%' },
+  { key: 'stroop', label: 'Stroop', higherIsBetter: true, unit: '' },
   { key: 'reaction', label: 'Reaction', higherIsBetter: false, unit: 'ms' },
   { key: 'minesweeper', label: 'Minesweeper', higherIsBetter: false, unit: 's' },
   { key: 'memory_word', label: 'Word Recall', higherIsBetter: true, unit: '' },
