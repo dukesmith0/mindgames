@@ -112,7 +112,7 @@ export function cleanupMinesweeperGame() {
   if (cleanupFn) { cleanupFn(); cleanupFn = null; }
 }
 
-export function initMinesweeperGame(onComplete) {
+export function initMinesweeperGame(onComplete, onLoss) {
   if (cleanupFn) { cleanupFn(); cleanupFn = null; }
 
   const timerEl = document.getElementById('minesweeper-timer');
@@ -232,7 +232,8 @@ export function initMinesweeperGame(onComplete) {
         }
       }
       cells[r][c].classList.add('ms-exploded');
-      statusEl.textContent = 'Boom! Click Retry to try again.';
+      statusEl.textContent = 'Boom!';
+      if (typeof onLoss === 'function') onLoss();
       return;
     }
 

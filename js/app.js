@@ -148,6 +148,35 @@ function showResult(screenId, game, score, formatFn) {
   });
 }
 
+/**
+ * Loss-mode overlay: shows only Retry, no Submit.
+ * Used when a game ends without a valid score (e.g., minesweeper mine hit).
+ */
+function showLossResult(screenId, game, message) {
+  const overlay = document.querySelector(`#${screenId} .result-overlay`);
+  overlay.querySelector('.result-score').textContent = message;
+  overlay.querySelector('.result-status').textContent = '';
+  overlay.classList.add('active');
+
+  const submitBtn = overlay.querySelector('.btn-submit');
+  const retryBtn = overlay.querySelector('.btn-retry');
+
+  // Replace the submit button with a hidden clone so we don't leak listeners
+  const newSubmit = submitBtn.cloneNode(true);
+  submitBtn.parentNode.replaceChild(newSubmit, submitBtn);
+  newSubmit.hidden = true;
+
+  const newRetry = retryBtn.cloneNode(true);
+  retryBtn.parentNode.replaceChild(newRetry, retryBtn);
+  newRetry.disabled = false;
+
+  newRetry.addEventListener('click', () => {
+    overlay.classList.remove('active');
+    newSubmit.hidden = false; // restore for next round
+    startGame(game);
+  });
+}
+
 function startGame(game) {
   cleanupAllGames();
   if (game === 'math') {
@@ -167,7 +196,10 @@ function startGame(game) {
     initWordGame((score) => showResult('screen-word', 'memory_word', score, (s) => `${s} / 10 words`));
   } else if (game === 'minesweeper') {
     showScreen('screen-minesweeper');
-    initMinesweeperGame((score) => showResult('screen-minesweeper', 'minesweeper', score, (s) => `${s.toFixed(2)} seconds`));
+    initMinesweeperGame(
+      (score) => showResult('screen-minesweeper', 'minesweeper', score, (s) => `${s.toFixed(2)} seconds`),
+      () => showLossResult('screen-minesweeper', 'minesweeper', 'You hit a mine!'),
+    );
   }
 }
 
