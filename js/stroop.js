@@ -12,26 +12,43 @@ const COLOR_HEX = {
 /**
  * Generates a single Stroop trial.
  * Pure function — no DOM dependency.
+ * Retries up to 10 times if the result duplicates `prev` on BOTH word and ink
+ * (same word + same ink back-to-back). Same word with different ink, or same ink
+ * with different word, is allowed.
  * @param {number} incongruentProb — probability [0,1] that the trial is incongruent (word !== ink)
+ * @param {{word: string, ink: string} | null} [prev] — previous trial; if provided, the new trial
+ *   will not match both axes simultaneously.
  * @returns {{ word: string, ink: string, congruent: boolean }}
  */
-export function generateTrial(incongruentProb = 0.7) {
-  const ink = COLORS[Math.floor(Math.random() * COLORS.length)];
-  const incongruent = Math.random() < incongruentProb;
+export function generateTrial(incongruentProb = 0.7, prev = null) {
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const ink = COLORS[Math.floor(Math.random() * COLORS.length)];
+    const incongruent = Math.random() < incongruentProb;
 
-  let wordColor;
-  if (incongruent) {
-    // Pick a different color for the word
-    const others = COLORS.filter((c) => c !== ink);
-    wordColor = others[Math.floor(Math.random() * others.length)];
-  } else {
-    wordColor = ink;
+    let wordColor;
+    if (incongruent) {
+      const others = COLORS.filter((c) => c !== ink);
+      wordColor = others[Math.floor(Math.random() * others.length)];
+    } else {
+      wordColor = ink;
+    }
+
+    const trial = {
+      word: wordColor.toUpperCase(),
+      ink,
+      congruent: wordColor === ink,
+    };
+
+    if (!prev || trial.word !== prev.word || trial.ink !== prev.ink) {
+      return trial;
+    }
   }
-
+  // Fallback: force-swap ink so we're guaranteed non-duplicate.
+  const fallbackInk = COLORS.find((c) => c !== prev.ink) || COLORS[0];
   return {
-    word: wordColor.toUpperCase(),
-    ink,
-    congruent: wordColor === ink,
+    word: prev.word,
+    ink: fallbackInk,
+    congruent: prev.word.toLowerCase() === fallbackInk,
   };
 }
 
@@ -92,7 +109,7 @@ export function initStroopGame(onComplete) {
   const buttonsEl = document.getElementById('stroop-buttons');
 
   let score = 0;
-  let timeLeft = 450; // tenths of a second (45.0s)
+  let timeLeft = 300; // tenths of a second (30.0s)
   let current = generateTrial();
 
   function renderTrial() {
@@ -123,7 +140,7 @@ export function initStroopGame(onComplete) {
       }
       score++;
       scoreEl.textContent = `Score: ${score}`;
-      current = generateTrial();
+      current = generateTrial(0.7, current);
       renderTrial();
     } else {
       flashWrong();
