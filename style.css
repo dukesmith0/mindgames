@@ -201,6 +201,25 @@ button:disabled { opacity: 0.5; cursor: default; }
   padding: 1px 0;
 }
 
+.stat-card .stat-row.stat-top {
+  font-size: 0.9rem;
+  padding: 2px 0 4px;
+  margin-bottom: 4px;
+  border-bottom: 1px dashed var(--border);
+}
+
+.stat-card .stat-top .stat-label {
+  color: var(--text);
+  font-weight: bold;
+  font-family: Georgia, serif;
+}
+
+.stat-card .stat-top-value {
+  color: var(--accent);
+  font-weight: bold;
+  font-family: monospace;
+}
+
 .stat-card .stat-label { color: var(--muted); }
 
 /* Heatmap inside user column */
@@ -565,6 +584,30 @@ button:disabled { opacity: 0.5; cursor: default; }
 #word-submit { display: block; margin: 0 auto; }
 
 /* Graphs page */
+.graphs-toolbar {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.graphs-mode-btn {
+  font-size: 0.85rem;
+  padding: 4px 12px;
+  background: var(--highlight-dim);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.graphs-mode-btn:hover {
+  color: var(--text);
+}
+
+.graphs-mode-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
 .graphs-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

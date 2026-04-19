@@ -6,7 +6,7 @@ import { initDigitGame, cleanupDigitGame } from './digit.js';
 import { initWordGame, cleanupWordGame } from './word.js';
 import { initMinesweeperGame, cleanupMinesweeperGame } from './minesweeper.js';
 import { renderDashboard } from './dashboard.js';
-import { renderGraphs } from './graphs.js';
+import { renderGraphs, setGraphsMode } from './graphs.js';
 
 // --- Screen routing ---
 export function showScreen(id) {
@@ -300,5 +300,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Quit buttons
   document.querySelectorAll('.btn-quit').forEach(btn => {
     btn.addEventListener('click', quitGame);
+  });
+
+  // Graphs mode toggle (All plays / Daily average)
+  document.querySelectorAll('.graphs-mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => setGraphsMode(btn.dataset.mode));
   });
 });

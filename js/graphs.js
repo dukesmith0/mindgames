@@ -15,6 +15,10 @@ let resizeBound = false;
 let resizeTimer = null;
 let themeObserver = null;
 
+// Current display mode: 'all' (every play) or 'daily' (one point per day = daily avg)
+let currentMode = 'all';
+let lastScores = null;
+
 /**
  * Extract points for a user+game, sorted by time ascending.
  * Skips invalid rows (NaN timestamps or scores).
@@ -27,6 +31,36 @@ export function extractSeries(scores, username, game) {
     const y = Number(s.score);
     if (!Number.isFinite(t) || !Number.isFinite(y)) continue;
     out.push({ t, y });
+  }
+  out.sort((a, b) => a.t - b.t);
+  return out;
+}
+
+/**
+ * Aggregates a series into one point per local calendar date.
+ * Each daily point's y = average of that day's plays; t = noon local for stable ordering.
+ * Input series may be in any order; output is sorted ascending by t.
+ */
+export function aggregateDaily(series) {
+  if (!series || series.length === 0) return [];
+  const byDate = new Map();
+  for (const p of series) {
+    const d = new Date(p.t);
+    const key = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+    if (!byDate.has(key)) {
+      byDate.set(key, {
+        sum: 0,
+        count: 0,
+        t: new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0).getTime(),
+      });
+    }
+    const bucket = byDate.get(key);
+    bucket.sum += p.y;
+    bucket.count++;
+  }
+  const out = [];
+  for (const bucket of byDate.values()) {
+    out.push({ t: bucket.t, y: bucket.sum / bucket.count });
   }
   out.sort((a, b) => a.t - b.t);
   return out;
@@ -193,8 +227,10 @@ function bindResize() {
 
 /**
  * Renders the graphs page: 3 user columns, each with charts for all 5 games.
+ * Respects currentMode ('all' or 'daily').
  */
 export function renderGraphs(scores) {
+  lastScores = scores;
   const container = document.getElementById('graphs-container');
   while (container.firstChild) container.removeChild(container.firstChild);
   activeCharts.length = 0;
@@ -224,7 +260,8 @@ export function renderGraphs(scores) {
 
       col.appendChild(card);
 
-      const series = extractSeries(scores, user, game.key);
+      const rawSeries = extractSeries(scores, user, game.key);
+      const series = currentMode === 'daily' ? aggregateDaily(rawSeries) : rawSeries;
       const opts = { higherIsBetter: game.higherIsBetter, unit: game.unit };
       activeCharts.push({ canvas, series, opts });
     }
@@ -232,9 +269,32 @@ export function renderGraphs(scores) {
     container.appendChild(col);
   }
 
+  updateModeButtons();
+
   // Single RAF to draw all charts after layout is settled
   requestAnimationFrame(() => {
     redrawAll();
     bindResize();
   });
+}
+
+function updateModeButtons() {
+  document.querySelectorAll('.graphs-mode-btn').forEach(btn => {
+    if (btn.dataset.mode === currentMode) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+}
+
+/**
+ * Changes the display mode and re-renders with the last-known scores.
+ * @param {'all' | 'daily'} mode
+ */
+export function setGraphsMode(mode) {
+  if (mode !== 'all' && mode !== 'daily') return;
+  if (mode === currentMode) return;
+  currentMode = mode;
+  if (lastScores !== null) renderGraphs(lastScores);
 }

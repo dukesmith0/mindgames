@@ -13,6 +13,28 @@ const GAME_LABELS = {
   minesweeper: 'Minesweeper',
 };
 
+// true = higher score is better; false = lower score is better
+const HIGHER_IS_BETTER = {
+  math: true,
+  sudoku: false,
+  reaction: false,
+  memory_digit: true,
+  memory_word: true,
+  minesweeper: false,
+};
+
+/** Returns the best (top) score from an array, respecting game direction. */
+export function bestScore(scoresArr, game) {
+  if (!scoresArr || scoresArr.length === 0) return null;
+  const higher = HIGHER_IS_BETTER[game];
+  let best = scoresArr[0];
+  for (let i = 1; i < scoresArr.length; i++) {
+    const v = scoresArr[i];
+    if (higher ? v > best : v < best) best = v;
+  }
+  return best;
+}
+
 // Heatmap window — fixed start, extends forward as time progresses
 const HEATMAP_START = '2026-04-18';
 const HEATMAP_FORWARD_DAYS = 90;
@@ -83,6 +105,7 @@ export function computeStats(scores, username, game) {
     median: median(userGameScores),
     mean: mean(userGameScores),
     count: userGameScores.length,
+    best: bestScore(userGameScores, game),
   };
 
   const dateMap = new Map();
@@ -249,6 +272,21 @@ function buildStatCard(scores, user, game) {
   card.appendChild(title);
 
   const stats = computeStats(scores, user, game);
+
+  // Top score row — visually emphasised at the top of the card
+  const topRow = document.createElement('div');
+  topRow.className = 'stat-row stat-top';
+  const topLabel = document.createElement('span');
+  topLabel.className = 'stat-label';
+  topLabel.textContent = 'Top';
+  const topVal = document.createElement('span');
+  topVal.className = 'stat-top-value';
+  topVal.textContent = stats.allTime.best !== null
+    ? formatScore(game, stats.allTime.best)
+    : '-';
+  topRow.appendChild(topLabel);
+  topRow.appendChild(topVal);
+  card.appendChild(topRow);
 
   const rows = [
     ['All-time Median', formatStatValue(game, stats.allTime.median)],
