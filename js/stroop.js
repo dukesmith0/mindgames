@@ -1,4 +1,4 @@
-// Stroop — 45-second color-word interference game
+// Stroop — 30-second color-word interference game
 
 export const COLORS = ['red', 'blue', 'green', 'yellow'];
 
@@ -148,7 +148,7 @@ export function initStroopGame(onComplete) {
   }
 
   // Reset UI
-  timerEl.textContent = '45.0';
+  timerEl.textContent = '30.0';
   scoreEl.textContent = 'Score: 0';
   renderTrial();
 
