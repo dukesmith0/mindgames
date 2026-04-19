@@ -117,4 +117,25 @@ export function initMathGame(onComplete) {
       freshInput.value = '';
     }
   });
+
+  // Enter skips the current problem with a 3-second time penalty.
+  // (Correct answers auto-submit via the input event, so Enter is only useful for skipping.)
+  let flashTimeout = null;
+  freshInput.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    // Apply -3s penalty (clamped to 0)
+    timeLeft = Math.max(0, timeLeft - 30);
+    // Visual feedback: flash timer red
+    timerEl.classList.add('timer-penalty');
+    if (flashTimeout !== null) clearTimeout(flashTimeout);
+    flashTimeout = setTimeout(() => {
+      timerEl.classList.remove('timer-penalty');
+      flashTimeout = null;
+    }, 300);
+    // New problem, clear input
+    current = generateProblem();
+    problemEl.textContent = current.text;
+    freshInput.value = '';
+  });
 }

@@ -326,7 +326,8 @@ button:disabled { opacity: 0.5; cursor: default; }
   border-bottom: 1px solid var(--border);
 }
 
-.timer { font-size: 1.4rem; font-family: monospace; font-weight: bold; }
+.timer { font-size: 1.4rem; font-family: monospace; font-weight: bold; transition: color 0.15s; }
+.timer.timer-penalty { color: var(--red); }
 
 /* Math game */
 .problem-display {
